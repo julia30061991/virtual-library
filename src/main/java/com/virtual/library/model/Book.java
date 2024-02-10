@@ -47,6 +47,7 @@ public class Book implements Serializable {
                 ", uuid=" + uuid +
                 ", title='" + title + '\'' +
                 ", dataPublication=" + dataPublication +
+                "author=" + author +
                 '}';
     }
 }

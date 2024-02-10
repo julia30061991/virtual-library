@@ -3,18 +3,15 @@ package com.virtual.library.controller;
 import com.virtual.library.model.Book;
 import com.virtual.library.service.BookServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
-
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
 public class RestController {
-//    public Page<InsuranceCompany> method(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date,
-//                                         Pageable pageable);
 
     @Autowired
     private final BookServiceImpl bookService;
@@ -46,12 +43,22 @@ public class RestController {
     }
 
     @PatchMapping("/book/update/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable("id") int id,
-                                           @RequestParam(required = false) String title,
-                                           @RequestParam(required = false) LocalDate date,
-                                           @RequestParam(required = false) String author)
+    public ResponseEntity<Object> updateBook(@PathVariable("id") int id,
+                                             @RequestParam(required = false) String title,
+                                             @RequestParam(required = false) LocalDate date,
+                                             @RequestParam(required = false) String author) {
+        Book book = bookService.updateBook(id, title, date, author);
+        if (book != null) {
+            return new ResponseEntity<>(book, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Книга в бибилиотеке отсутствует", HttpStatus.NOT_FOUND);
+        }
+    }
 
-    {
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("/books")
+    public Page<Book> getAllBooks(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                  @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                  @RequestParam(value = "sort") String sortField) {
+        return bookService.getAllBooks(offset, limit, sortField);
     }
 }

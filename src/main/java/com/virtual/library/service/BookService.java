@@ -1,8 +1,8 @@
 package com.virtual.library.service;
 
 import com.virtual.library.model.Book;
+import org.springframework.data.domain.Page;
 import java.time.LocalDate;
-import java.util.List;
 
 public interface BookService {
 
@@ -12,8 +12,7 @@ public interface BookService {
 
     void deleteBook(int id);
 
-    void updateBook(int id);
+    Book updateBook(int id, String title, LocalDate date, String author);
 
-    List<Book> getAllBooks();
-
+    Page<Book> getAllBooks(int offset, int limit, String sort);
 }

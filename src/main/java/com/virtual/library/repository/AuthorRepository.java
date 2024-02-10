@@ -14,5 +14,5 @@ public interface AuthorRepository extends JpaRepository <Author, Integer> {
     @Override
     List<Author> findAll();
 
-    Author getByName(String name);
+    Author getAuthorByName(String name);
 }
