@@ -25,7 +25,7 @@ public class Book implements Serializable {
     private String title;
     @Column(name = "data_publication", columnDefinition = "VARCHAR(255)")
     private LocalDate dataPublication;
-    @ManyToOne (fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+    @ManyToOne (fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     @JoinColumn(name = "author_id")
     private Author author;
 
