@@ -10,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,10 +35,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book addNewBook(String title, LocalDate datePublication, String nameAuthor) {
+    public Book addNewBook(String title, String datePublication, String nameAuthor) {
         Book book = bookRepository.getBookByTitleAndAuthor(title, authorRepository.getAuthorByName(nameAuthor));
         if (book == null) {
-            Book newBook = new Book(UUID.randomUUID(), title, datePublication);
+            DateTimeFormatter pattern = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            LocalDate date = LocalDate.parse(datePublication, pattern);
+            Book newBook = new Book(UUID.randomUUID(), title, date);
             Author authorFromRepo = authorRepository.getAuthorByName(nameAuthor);
             if (authorFromRepo != null) {
                 newBook.setAuthor(authorFromRepo);
@@ -60,7 +64,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book updateBook(int id, String title, LocalDate date, String authorName) {
+    public Book updateBook(int id, String title, String date, String authorName) {
         Book book = bookRepository.getBookById(id);
         if (book != null) {
             //проверка названия книги
@@ -70,7 +74,11 @@ public class BookServiceImpl implements BookService {
             //проверка даты публикации книги
             if (date == null) {
                book.setDataPublication(book.getDataPublication());
-            } else book.setDataPublication(date);
+            } else {
+                DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate newDate = LocalDate.parse(date, pattern);
+                book.setDataPublication(newDate);
+            }
             //проверка автора книги
             if (authorName == null || authorName.isEmpty()) {
                 book.setAuthor(book.getAuthor());
@@ -94,5 +102,10 @@ public class BookServiceImpl implements BookService {
     public Page <Book> getAllBooks(int offset, int limit, String sortField) {
         //сортировка по полю сущности, передается в параметрах реквеста
         return bookRepository.findAll(PageRequest.of(offset, limit, Sort.by(Sort.Direction.ASC, sortField)));
+    }
+
+    @Override
+    public List<Book> getListOfBooks() {
+        return bookRepository.findAll();
     }
 }

@@ -1,6 +1,7 @@
 import com.virtual.library.controller.RestController;
 import com.virtual.library.model.Book;
 import com.virtual.library.service.BookServiceImpl;
+import com.virtual.library.service.ExcelGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,8 +11,15 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,15 +55,15 @@ public class RestControllerTest {
         book.setTitle("Ночь перед Рождеством");
         book.setDataPublication(LocalDate.now());
 
-        Mockito.when(bookService.addNewBook("Ночь перед Рождеством", LocalDate.now(),
+        Mockito.when(bookService.addNewBook("Ночь перед Рождеством", LocalDate.now().toString(),
                 "Н.В.Гоголь")).thenReturn(book);
-        ResponseEntity<Book> response = restController.addNewBook("Ночь перед Рождеством", LocalDate.now(),
+        ResponseEntity<Book> response = restController.addNewBook("Ночь перед Рождеством", LocalDate.now().toString(),
                 "Н.В.Гоголь");
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Assertions.assertEquals(new ResponseEntity<>(book, HttpStatus.CREATED),
-                restController.addNewBook("Ночь перед Рождеством", LocalDate.now(), "Н.В.Гоголь"));
+                restController.addNewBook("Ночь перед Рождеством", LocalDate.now().toString(), "Н.В.Гоголь"));
     }
 
     @Test
@@ -79,10 +87,10 @@ public class RestControllerTest {
         book1.setTitle("Первая книга");
         book1.setDataPublication(LocalDate.now());
 
-        Mockito.when(bookService.updateBook(1, newTitle, LocalDate.now(),
+        Mockito.when(bookService.updateBook(1, newTitle, LocalDate.now().toString(),
                 "Н.В.Гоголь")).thenReturn(new Book(1, uuid,
                 newTitle, LocalDate.now(), null));
-        ResponseEntity<Object> response = restController.updateBook(1, newTitle, LocalDate.now(),
+        ResponseEntity<Object> response = restController.updateBook(1, newTitle, LocalDate.now().toString(),
                 "Н.В.Гоголь");
 
         book1.setTitle("Первая книга стала второй");
@@ -90,6 +98,6 @@ public class RestControllerTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertEquals(new ResponseEntity<>(book1, HttpStatus.OK), restController.updateBook(1,
-                newTitle, LocalDate.now(), "Н.В.Гоголь"));
+                newTitle, LocalDate.now().toString(), "Н.В.Гоголь"));
     }
 }
