@@ -7,13 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -22,9 +24,12 @@ public class RestController {
 
     @Autowired
     private final BookServiceImpl bookService;
+    @Autowired
+    private JavaMailSender mailSender;
 
-    public RestController(BookServiceImpl bookService) {
+    public RestController(BookServiceImpl bookService, JavaMailSender sender) {
         this.bookService = bookService;
+        this.mailSender = sender;
     }
 
     @GetMapping("/book/{id}")
@@ -77,11 +82,21 @@ public class RestController {
         String currentDateTime = dateFormatter.format(new Date());
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=student" + currentDateTime + ".xlsx";
+        String headerValue = "attachment; filename=books" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
         List<Book> listOfBooks = bookService.getListOfBooks();
         ExcelGenerator generator = new ExcelGenerator();
         generator.generateExcelFile(response, listOfBooks);
+        final SimpleMailMessage simpleMail = new SimpleMailMessage();
+        simpleMail.setFrom("xxx@yandex.ru");
+        simpleMail.setTo("xxx@ya.ru");
+        simpleMail.setSubject("Генерация ежемесячного Excel-отчета");
+        simpleMail.setText("Ваш отчет сгенерирован. Для просмотра перейдите в рабочую директорию.");
+        try {
+            this.mailSender.send(simpleMail);
+        } catch (MailException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
